@@ -54,14 +54,28 @@ const server = http.createServer((req, res) => {
     // GET /dogs
     if (req.method === 'GET' && req.url === '/dogs') {
       // Your code here
+      res.statusCode = 200;
+      res.setHeader('content-type','application/json');
+      res.write(JSON.stringify(dogs));
+      return res.end();
     }
 
     // GET /dogs/:dogId
     if (req.method === 'GET' && req.url.startsWith('/dogs/')) {
       const urlParts = req.url.split('/'); // ['', 'dogs', '1']
       if (urlParts.length === 3) {
-        const dogId = urlParts[2];
+        const TdogId = urlParts[2];
         // Your code here
+        res.statusCode = 200;
+        res.setHeader('content-type','application/json');
+        function dogFinder(Tdog){
+          if(Tdog.dogId == TdogId){
+            return Tdog;
+          }
+        }
+        const answer = dogs.find(dogFinder);
+        res.write(JSON.stringify(answer));
+        return res.end();
       }
     }
 
@@ -69,6 +83,18 @@ const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === '/dogs') {
       const { name, age } = req.body;
       // Your code here
+      if(!name || !age){
+        res.statusCode = 400;
+        res.setHeader('content-type','application\json');
+        res.write(JSON.stringify("Name and age both required"));
+        return res.end();
+      }
+      const dog = {dogId : getNewDogId(), name, age};
+      dogs.push(dog);
+      res.statusCode = 201;
+      res.setHeader('content-type', 'application/json');
+      res.write(JSON.stringify(dog));
+      return res.end();
     }
 
     // PUT or PATCH /dogs/:dogId
@@ -76,7 +102,23 @@ const server = http.createServer((req, res) => {
       const urlParts = req.url.split('/');
       if (urlParts.length === 3) {
         const dogId = urlParts[2];
+        const {name, age} = req.body;
         // Your code here
+        res.statusCode = 200;
+        res.setHeader("content-type","application/json");
+        function dogFinderPost(TdogId){
+          if(TdogId.dogId == dogId){
+            return TdogId;
+          }
+        }
+        let answer = dogs.find(dogFinderPost);
+        if(answer){
+          let dogIndex = dogs.indexOf(answer);
+          dogs[dogIndex].name = name;
+          dogs[dogIndex].age = age;
+        }
+        res.write(JSON.stringify("Successfully Updated"));
+        return res.end();
       }
     }
 
@@ -86,6 +128,18 @@ const server = http.createServer((req, res) => {
       if (urlParts.length === 3) {
         const dogId = urlParts[2];
         // Your code here
+        res.statusCode = 201;
+        res.setHeader = ("content-type","application/json");
+        function dogFinderDelete(TdogId){
+          if(TdogId == dogId){
+            return dogId;
+          }
+        }
+        let theDog = dogs.find(dogFinderDelete);
+        let dogIndex = dogs.indexOf(theDog);
+        dogs.splice(dogIndex,1);
+        res.write(JSON.stringify("Successfully Deleted"));
+        return res.end();
       }
     }
 
